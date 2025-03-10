@@ -22,6 +22,16 @@ namespace TrophyLib.Tests
         }
 
         [TestMethod()]
+        public void ConstraintYearTest() 
+        {
+            Trophy trophy = new Trophy();
+            trophy.Year = 1970;
+            Assert.AreEqual(1970, trophy.Year);
+            Assert.ThrowsException<ArgumentOutOfRangeException>(() => trophy.Year = 1969);
+            Assert.ThrowsException<ArgumentOutOfRangeException>(() => trophy.Year = 2026);
+        }
+
+        [TestMethod()]
         public void ToStringTest()
         {
             Trophy trophy = new Trophy();

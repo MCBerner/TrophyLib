@@ -5,8 +5,25 @@ namespace TrophyLib
 {
     public class Trophy
     {
-        private string competition;
+        
+        private string? competition;
         private int year;
+
+        public Trophy()
+        {
+        }
+
+        public Trophy(Trophy previousTrophy)
+        {
+            Competition = previousTrophy.Competition;
+            Year = previousTrophy.Year; 
+        }
+
+        public Trophy(string copmetition, int year)
+        {
+            Competition = copmetition;
+            Year = year;
+        }
 
         public int Id { get; set; }
         public string Competition

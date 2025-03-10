@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -8,38 +9,83 @@ namespace TrophyLib
 {
     public class TrophyRepository
     {
-        private List<Trophy> trophies = new List<Trophy>();
-        public void Add(Trophy trophy)
+        private int _nextId = 1;
+        private readonly List<Trophy> trophies = new List<Trophy>();
+        private readonly int Id;
+
+        public TrophyRepository()
         {
-            if (trophies.Contains(trophy))
-                throw new ArgumentException("Trophy already exists");
+
+        }
+
+        public Trophy? GetById(int id)
+        {
+            return trophies.Find(trophy => trophy.Id == id);
+        }
+
+        public Trophy? Add(Trophy trophy)
+        {
+            if (trophy == null)
+            {
+                throw new ArgumentNullException(nameof(trophy));
+            }
+            trophy.Id = _nextId++;
             trophies.Add(trophy);
+            return trophy;
         }
-        public void Remove(Trophy trophy)
+        public Trophy? Remove(Trophy trophy)
         {
-            if (!trophies.Contains(trophy))
-                throw new ArgumentException("Trophy does not exist");
+            Trophy? movie = GetById(Id);
+            if (trophy == null)
+            {
+                throw new ArgumentException("Trophy not found, id");
+            }
             trophies.Remove(trophy);
+            return trophy;
         }
-        public List<Trophy> GetAll()
+        
+
+        public List<Trophy> Get(int? Year = null, string? trophyFragment = null, string? sortby = null)
         {
-            return trophies;
+            var result = new List<Trophy>(trophies);
+            if (Year != null)
+            {
+                result = result.FindAll(a => a.Year >= Year);
+            }
+            if (trophyFragment != null)
+            {
+                result = result.FindAll(a => a.Competition.Contains(trophyFragment));
+            }
+            if (sortby != null)
+            {
+                switch (sortby)
+                {
+                    case "Name":
+                        result.Sort((a1, a2) => a1.Competition.CompareTo(a2.Competition));
+                        break;
+                    case "yearLast":
+                        result.Sort((a1, a2) => a1.Year - a2.Year);
+                        break;
+                    case "yearFirst":
+                        result.Sort((a1, a2) => a2.Year - a1.Year);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            return result;
         }
-        public Trophy GetById(int id)
+        public Trophy Update(int id, Trophy updatedTrophy)
         {
-            return trophies.Find(t => t.Id == id);
-        }
-        public List<Trophy> GetByCompetition(string competition)
-        {
-            return trophies.FindAll(t => t.Competition == competition);
-        }
-        public List<Trophy> GetByYear(int year)
-        {
-            return trophies.FindAll(t => t.Year == year);
-        }
-        public List<Trophy> GetByYearRange(int startYear, int endYear)
-        {
-            return trophies.FindAll(t => t.Year >= startYear && t.Year <= endYear);
+            Trophy? trophy = GetById(id);
+            if (trophy == null)
+            {
+                throw new ArgumentException("Trophy not found, id");
+            }
+            trophy.Competition = updatedTrophy.Competition;
+            trophy.Year = updatedTrophy.Year;
+            return trophy;
         }
     }
 }
